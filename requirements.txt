@@ -1,0 +1,20 @@
+# Keep the LeRobot revision and ML versions used by the original project.
+numpy
+Pillow
+pyzmq
+pygame
+opencv-python
+tyro
+ur_rtde
+pyrealsense2
+minimalmodbus
+pyserial
+pyarrow
+datasets==3.4.1
+safetensors==0.5.3
+torch==2.6.0
+torchvision==0.21.0
+transformers==4.50.3
+lerobot @ git+https://github.com/huggingface/lerobot.git@10b7b3532543b4adfb65760f02a49b4c537afde7
+
+# Install the vendor Xense SDK (xensesdk) separately in this environment.
