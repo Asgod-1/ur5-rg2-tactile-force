@@ -1,0 +1,34 @@
+{
+  "architecture": "vit_small_patch14_dinov2",
+  "num_classes": 0,
+  "num_features": 384,
+  "global_pool": "token",
+  "pretrained_cfg": {
+    "tag": "lvd142m",
+    "custom_load": false,
+    "input_size": [
+      3,
+      518,
+      518
+    ],
+    "fixed_input_size": true,
+    "interpolation": "bicubic",
+    "crop_pct": 1.0,
+    "crop_mode": "center",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "num_classes": 0,
+    "pool_size": null,
+    "first_conv": "patch_embed.proj",
+    "classifier": "head",
+    "license": "cc-by-nc-4.0"
+  }
+}

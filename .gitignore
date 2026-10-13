@@ -1,0 +1,36 @@
+# TacForceWM training results
+/real_ur5rg2/tacforce_wm/outputs/
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local virtual environments
+.venv/
+venv/
+env/
+
+# Local environment configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Editor and operating-system metadata
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
