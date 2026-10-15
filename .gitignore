@@ -1,9 +1,24 @@
-# TacForceWM training results
-/real_ur5rg2/tacforce_wm/outputs/
+# Training results
+outputs/
 
 # Local data and experiment runs
 data/
 runs/
+
+# Model checkpoints and downloaded weights
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Required DINOv2 weights stay in version control
+!/real_ur5rg2/tacforce_wm/DINOv2/model.safetensors
+!/real_ur5rg2/tacforce_wm/DINOv2/pytorch_model.bin
+
+# Generated feature caches and logs
+*.zarr/
+events.out.tfevents.*
+*.log
 
 # Python caches
 __pycache__/
@@ -28,6 +43,7 @@ env/
 
 # Editor and operating-system metadata
 .idea/
+.vscode/
 .DS_Store
 Thumbs.db
 desktop.ini
