@@ -6,10 +6,10 @@ runtime:
 
 output:
   root_dir: outputs
-  run_name: tactile_boltnut_dynamics
+  run_name: tactile_insert_dynamics
 
 data:
-  root_dir: ../data/ur5_rg2_real_smolvla_dataset_xense_tactile_boltnut_demo_200
+  root_dir: ../data/ur5_rg2_real_smolvla_dataset_xense_tactile_insert
   format: lerobot_v2.1
   window_size: 16
   stride: 1
@@ -66,8 +66,8 @@ model:
     sigreg_num_proj: 512
 
 train:
-  batch_size: 32
-  val_batch_size: 32
+  batch_size: 128
+  val_batch_size: 128
   num_workers: 8
   ddp_num_workers: 16
   pin_memory: true
@@ -75,7 +75,7 @@ train:
   prefetch_factor: 4
   epochs: 64
   grad_clip: null
-  use_amp: false
+  use_amp: true
   normalizer_max_rows: 200000
   lr_warmup_steps: 1000
   optimizer:

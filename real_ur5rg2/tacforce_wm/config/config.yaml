@@ -6,19 +6,19 @@ runtime:
 
 output:
   root_dir: outputs
-  run_name: wrist_policy_run
+  run_name: tactile_insert_policy
 
 data:
-  root_dir: ../data/ur5_rg2_real_smolvla_dataset_xense_tactile_boltnut_demo_200
+  root_dir: ../data/ur5_rg2_real_smolvla_dataset_xense_tactile_insert
   format: lerobot_v2.1
-  window_size: 16
+  window_size: 8
   stride: 1
   n_image_steps: 1
   image_size: 224
   preload_to_ram: true
   image_as_uint8: true
   action_window_size: 32
-  latent_cache_root_dir: ${data.root_dir}/../tacforce_policy_cache
+  latent_cache_root_dir: ${data.root_dir}/../tacforce_insert_policy_cache
   action_dim: 7
   action_representation: absolute
   val_fraction: 0.2
@@ -36,8 +36,8 @@ data:
 model:
   backend:
     type: dynamics
-    config_path: outputs/tactile_boltnut_dynamics/resolved_config.yaml
-    ckpt_path: outputs/tactile_boltnut_dynamics/checkpoints/best_model.pt
+    config_path: ${output.root_dir}/tactile_insert_dynamics/resolved_config.yaml
+    ckpt_path: ${output.root_dir}/tactile_insert_dynamics/checkpoints/best_model.pt
     normalize_keys: [tactile, force_4x]
   policy:
     action_dim: 7
@@ -63,8 +63,8 @@ model:
   dynamics: {}
 
 train:
-  batch_size: 16
-  val_batch_size: 16
+  batch_size: 256
+  val_batch_size: 256
   num_workers: 4
   ddp_num_workers: 4
   pin_memory: true
@@ -83,6 +83,6 @@ train:
     weight_decay: 1.0e-4
 
 checkpoint:
-  save_every: 5
-  val_every: 2
+  save_every: 100
+  val_every: 1
   best_metric: loss
