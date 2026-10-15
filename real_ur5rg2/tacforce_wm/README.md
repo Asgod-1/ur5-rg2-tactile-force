@@ -62,6 +62,45 @@ python -m pip install -r real_ur5rg2/tacforce_wm/requirements.txt
 cd real_ur5rg2/tacforce_wm
 ```
 
+## 按场景和实验后缀运行
+
+在 `config/scenes.yaml` 中为每个场景登记一次数据目录，路径相对于 `tacforce_wm/`。已登记现有场景 `tactile_insert`；新增场景只需增加一项，例如：
+
+```yaml
+new_scene:
+  data_root: ../data/my_new_scene_dataset
+```
+
+训练、缓存和真机推理使用相同的 `--scene 场景名 --suffix 实验后缀`。后缀可省略；同一场景用不同后缀保存不同实验。`--set KEY=VALUE` 可重复传入，直接覆盖现有 YAML 参数，无需修改配置文件。以下命令串起完整链路，机器人连接参数仍沿用原入口：
+
+```bash
+python train.py dynamics --scene tactile_insert --suffix exp_b64 \
+  --set train.batch_size=64 --set train.val_batch_size=64
+
+python tools/precompute_policy_latents.py --scene tactile_insert --suffix exp_b64 \
+  --split all --batch-size 8 --no-amp
+
+python train.py policy --scene tactile_insert --suffix exp_b64 \
+  --set train.batch_size=64 --set train.val_batch_size=64 --set train.optimizer.lr=1e-4
+
+python infer_tacforce_wm_policy_real_ur5_M.py --scene tactile_insert --suffix exp_b64 \
+  --force-serial-port /dev/ttyUSB0 \
+  --no-hybrid-control --no-force-position-mixing --dry-run --max-steps 100
+```
+
+上述实验分别保存到 `outputs/tactile_insert_dynamics_exp_b64/` 和 `outputs/tactile_insert_policy_exp_b64/`，解析后的实际配置仍保存在各自的 `resolved_config.yaml` 中。Policy 和缓存生成入口自动选择同场景、同后缀的 Dynamics 配置及 `best_model.pt`；推理自动选择对应 Policy 的 `best.pt`，缺失时使用该实验的 `latest.pt`。指定的实验没有检查点时会报错。
+
+若只调整 Policy 参数、复用已训练的 Dynamics 和缓存，可单独指定 Dynamics 后缀：
+
+```bash
+python train.py policy --scene tactile_insert --suffix policy_lr5e5 \
+  --dynamics-suffix exp_b64 --set train.optimizer.lr=5e-5
+```
+
+缓存按所选 Dynamics 后缀区分，`tactile_insert` 的缓存为 `../data/tacforce_insert_policy_cache_<Dynamics后缀>/`；其他场景默认使用 `../data/<场景名>_policy_cache_<Dynamics后缀>/`，也可在场景表中设置 `cache_root`。如果修改了影响缓存的数据窗口等参数，缓存生成与 Policy 训练需传入相同的 `--set`，并重建缓存或通过 `--set data.latent_cache_root_dir=新目录` 分开保存。
+
+现有的 `batch128` 实验可以直接用 `--scene tactile_insert --suffix batch128` 选择。`--config` 仍可选择基础 YAML，显式 `--set` 优先于场景默认值；不传 `--scene` 时保留原配置中的全部路径，`--policy-path` 仍可在推理时直接指定检查点。场景模式的输出目录默认来自基础 YAML 的 `output.root_dir`；如通过 `--set output.root_dir=其他目录` 修改，推理时传入相同的 `--output-root 其他目录`。
+
 两份 YAML 已去掉旧机器的绝对路径。默认数据目录为 `../data/ur5_rg2_real_smolvla_dataset_xense_tactile_boltnut_demo_200`；如果本机数据放在其他位置，修改两份配置的 `data.root_dir`。其他默认路径如下：
 
 | 内容 | 相对于模型目录的路径 |

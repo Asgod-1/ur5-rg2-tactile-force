@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from utils.experiment import add_experiment_arguments, build_experiment_config
+
 CONFIG_DIR = Path(__file__).resolve().parent / "config"
 
 
@@ -18,6 +20,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     policy = subparsers.add_parser("policy", help="Train flow-matching policy")
+    add_experiment_arguments(policy, policy=True)
     policy.add_argument("--config", type=str, default=str(CONFIG_DIR / "config.yaml"))
     policy.add_argument(
         "--benchmark",
@@ -29,6 +32,7 @@ def _build_parser() -> argparse.ArgumentParser:
     policy.add_argument("--bench-warmup", type=int, default=10)
 
     dynamics = subparsers.add_parser("dynamics", help="Train TacForce world model")
+    add_experiment_arguments(dynamics)
     dynamics.add_argument("--config", type=str, default=str(CONFIG_DIR / "dynamics_train.yaml"))
     dynamics.add_argument("--ddp", action="store_true")
     dynamics.add_argument("--test", action="store_true")
@@ -40,15 +44,13 @@ def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
 
-    from utils.train_utils import build_canonical_config
-
     if args.task == "policy":
         overrides = {
             "runtime.benchmark": getattr(args, "benchmark", "none"),
             "runtime.bench_steps": getattr(args, "bench_steps", 100),
             "runtime.bench_warmup": getattr(args, "bench_warmup", 10),
         }
-        cfg = build_canonical_config("policy", args.config, overrides=overrides)
+        cfg = build_experiment_config("policy", args.config, args, overrides=overrides)
         from trainers.policy_trainer import main as policy_main
 
         policy_main(cfg)
@@ -59,7 +61,7 @@ def main() -> None:
             "runtime.ddp": getattr(args, "ddp", False),
             "runtime.test": getattr(args, "test", False),
         }
-        cfg = build_canonical_config("dynamics", args.config, overrides=overrides)
+        cfg = build_experiment_config("dynamics", args.config, args, overrides=overrides)
         from trainers.dynamics_trainer import main as dynamics_main
 
         dynamics_main(cfg)

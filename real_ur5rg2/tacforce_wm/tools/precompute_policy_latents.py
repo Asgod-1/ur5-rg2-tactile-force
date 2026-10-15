@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT))
 from datasets.policy_lerobot_dataset import LeRobotPolicyDataset  # noqa: E402
 from models.dynamics import build_dynamics  # noqa: E402
 from models.policy.condition_encoder import DinoV2SmallEncoder  # noqa: E402
-from utils.train_utils import build_canonical_config  # noqa: E402
+from utils.experiment import add_experiment_arguments, build_experiment_config  # noqa: E402
 
 
 def build_dataset(cfg: dict, split: str) -> LeRobotPolicyDataset:
@@ -205,6 +205,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Precompute LeRobot wrist DINOv2 features and TacForce tactile latents."
     )
+    add_experiment_arguments(parser, policy=True)
     parser.add_argument("--config", default=str(ROOT / "config" / "config.yaml"))
     parser.add_argument("--split", choices=("train", "val", "all"), default="all")
     parser.add_argument("--batch-size", type=int, default=128)
@@ -215,7 +216,7 @@ def main() -> None:
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
 
-    cfg = build_canonical_config("policy", args.config)
+    cfg = build_experiment_config("policy", args.config, args)
     splits = ("train", "val") if args.split == "all" else (args.split,)
     for split in splits:
         precompute_split(cfg, split, args)

@@ -1,0 +1,5 @@
+# Paths are relative to tacforce_wm/. Register each dataset once here.
+tactile_insert:
+  data_root: ../data/ur5_rg2_real_smolvla_dataset_xense_tactile_insert
+  # The selected Dynamics suffix is appended to this cache directory name.
+  cache_root: ../data/tacforce_insert_policy_cache

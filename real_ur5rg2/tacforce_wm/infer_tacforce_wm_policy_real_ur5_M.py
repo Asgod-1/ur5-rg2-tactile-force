@@ -37,6 +37,7 @@ for path in (REAL_UR5_DIR.parent, REAL_UR5_DIR, SCRIPT_DIR, TRAINING_ROOT):
         sys.path.insert(0, str(path))
 
 import infer_tactile_smolvla_real_ur5_hybrid_control as real_control  # noqa: E402
+from utils.experiment import add_experiment_arguments, policy_checkpoint_candidates  # noqa: E402
 
 
 DEFAULT_POLICY_CHECKPOINTS = (
@@ -52,6 +53,8 @@ ACTIVE_INFER = None
 def _extract_tactile_safety_args() -> argparse.Namespace:
     """Parse our extra flags, leaving all reference-loop flags untouched."""
     parser = argparse.ArgumentParser(add_help=False)
+    add_experiment_arguments(parser, config_overrides=False)
+    parser.add_argument("--output-root", default="outputs", help="Training output root for --scene.")
     parser.add_argument(
         "--policy-execute-steps",
         type=int,
@@ -73,22 +76,32 @@ def _extract_tactile_safety_args() -> argparse.Namespace:
     parser.add_argument("--tactile-trigger-frames", type=int, default=2)
     parser.add_argument("--tactile-latch-steps", type=int, default=20)
     extra, remaining = parser.parse_known_args()
+    if "--help" in remaining or "-h" in remaining:
+        parser.print_help()
     sys.argv = [sys.argv[0], *remaining]
     return extra
 
 
-def _resolve_policy_checkpoint(value: str | None) -> Path:
+def _resolve_policy_checkpoint(value: str | None, *, scene: str | None = None,
+                               suffix: str = "", output_root: str = "outputs") -> Path:
     if value:
         path = Path(value).expanduser().resolve()
         if not path.is_file():
             raise FileNotFoundError(f"TacForceWM policy checkpoint not found: {path}")
         return path
-    for path in DEFAULT_POLICY_CHECKPOINTS:
+    if not scene and (suffix or output_root != "outputs"):
+        raise ValueError("--suffix and --output-root require --scene (or pass --policy-path).")
+    candidates = (
+        policy_checkpoint_candidates(scene, suffix, output_root=output_root, training_root=TRAINING_ROOT)
+        if scene else DEFAULT_POLICY_CHECKPOINTS
+    )
+    for path in candidates:
         if path.is_file():
             return path.resolve()
-    tried = "\n  ".join(str(path) for path in DEFAULT_POLICY_CHECKPOINTS)
+    tried = "\n  ".join(str(path) for path in candidates)
     raise FileNotFoundError(
-        "No TacForceWM policy checkpoint was found. Pass it through --policy-path. "
+        "No TacForceWM policy checkpoint was found for the selected run. "
+        "Select --scene/--suffix or pass --policy-path. "
         f"Tried:\n  {tried}"
     )
 
@@ -194,7 +207,12 @@ class TacForceWMRealUR5Infer:
             raise ValueError("TacForceWM inference requires force/torque input; use --collect-force.")
         self.args = args
         self.device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
-        self.policy_path = _resolve_policy_checkpoint(args.policy_path)
+        self.policy_path = _resolve_policy_checkpoint(
+            args.policy_path,
+            scene=getattr(args, "scene", None),
+            suffix=getattr(args, "suffix", ""),
+            output_root=getattr(args, "output_root", "outputs"),
+        )
         checkpoint = torch.load(self.policy_path, map_location=self.device, weights_only=False)
         if not isinstance(checkpoint, dict):
             raise TypeError(f"Invalid policy checkpoint object in {self.policy_path}")
