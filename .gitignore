@@ -1,6 +1,10 @@
 # TacForceWM training results
 /real_ur5rg2/tacforce_wm/outputs/
 
+# Local data and experiment runs
+data/
+runs/
+
 # Python caches
 __pycache__/
 *.py[cod]
