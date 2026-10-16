@@ -19,12 +19,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from dataset_delete_utils import confirm_and_rmtree
+from data_tools.deletion import confirm_and_rmtree
 
 
-DEFAULT_FIRST_ROOT = Path("real_ur5rg2/data/ur5_rg2_real_smolvla_dataset_force_boltnut")
-DEFAULT_SECOND_ROOT = Path("real_ur5rg2/data/ur5_rg2_real_smolvla_dataset_force_boltnut2")
-DEFAULT_OUTPUT_ROOT = Path("real_ur5rg2/data/ur5_rg2_real_smolvla_dataset_force_boltnut_merged")
+DEFAULT_OUTPUT_ROOT = Path("data/merged")
 
 
 @dataclass(frozen=True)
@@ -39,17 +37,17 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Merge two LeRobot datasets and reindex their metadata."
     )
-    parser.add_argument("--first-root", type=Path, default=DEFAULT_FIRST_ROOT)
-    parser.add_argument("--second-root", type=Path, default=DEFAULT_SECOND_ROOT)
+    parser.add_argument("--first-root", type=Path, required=True)
+    parser.add_argument("--second-root", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument(
         "--drop-second-episodes",
-        default="31",
+        default="",
         help="Episode indexes/ranges removed from the second source before merging, e.g. 31.",
     )
     parser.add_argument(
         "--drop-merged-episodes",
-        default="0-19",
+        default="",
         help="Episode indexes/ranges removed after the two sources are merged, e.g. 0-19.",
     )
     parser.add_argument(

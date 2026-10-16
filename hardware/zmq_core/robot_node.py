@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 import numpy as np
 import zmq
 
-from gello.robots.robot import Robot
+from hardware.robots.robot import Robot
 
 DEFAULT_ROBOT_PORT = 6000
 DEFAULT_CLIENT_TIMEOUT_MS = 10000
@@ -110,7 +110,7 @@ class ZMQClientRobot(Robot):
         except zmq.Again as exc:
             raise RuntimeError(
                 f"ZMQ timeout talking to robot server at {self._addr}. "
-                "Make sure real_ur5rg2/experiments/launch_nodes.py is running "
+                "Make sure ur5_rg2/launch.py is running "
                 f"and responding within {self._timeout_ms} ms."
             ) from exc
         if isinstance(result, dict) and "error" in result:

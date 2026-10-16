@@ -1,14 +1,11 @@
-"""Module to control Robotiq's grippers - tested with HAND-E.
+"""Control the OnRobot RG2 through UR RTDE custom scripts.
 
-Taken from https://github.com/githubuser0xFFFF/py_robotiq_gripper/blob/master/src/robotiq_gripper.py
+Original driver reference:
+https://github.com/githubuser0xFFFF/py_robotiq_gripper/blob/master/src/robotiq_gripper.py
 """
 
-import socket
-import threading
 import time
-from enum import Enum
-from typing import OrderedDict, Tuple, Union
-import rtde_control
+
 
 class RG2Gripper:
     def __init__(self, robot, cmd_lock, host_name="192.168.1.102", port_num=29999):
@@ -17,7 +14,7 @@ class RG2Gripper:
         self.port_num = port_num
         self.cmd_lock = cmd_lock
         self.robot = robot
-        
+
         print("gripper init")
 
     def _build_rg2_function_body(self, target_width: float, target_force: float) -> str:
@@ -113,24 +110,5 @@ end
         with self.cmd_lock:
             ok = self.robot.sendCustomScriptFunction("rg2_remote", tcp_command)
         time.sleep(0.008)
-        
+
         return ok
-    
-def main():
-    # test open and closing the gripper
-    gripper = RG2Gripper()
-    gripper.connect(hostname="192.168.1.10", port=63352)
-    # gripper.activate()
-    print(gripper.get_current_position())
-    gripper.move(20, 255, 1)
-    time.sleep(0.2)
-    print(gripper.get_current_position())
-    gripper.move(65, 255, 1)
-    time.sleep(0.2)
-    print(gripper.get_current_position())
-    gripper.move(20, 255, 1)
-    gripper.disconnect()
-
-
-if __name__ == "__main__":
-    main()

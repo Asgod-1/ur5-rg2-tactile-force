@@ -31,7 +31,7 @@ class ZMQClientTactile:
         except zmq.Again as exc:
             raise RuntimeError(
                 f"ZMQ timeout talking to tactile server at {self._addr}. "
-                "Make sure launch_nodes.py is running with tactile enabled "
+                "Make sure ur5_rg2/launch.py is running with tactile enabled "
                 f"and responding within {self._timeout_ms} ms."
             ) from exc
         if isinstance(frame, dict) and "error" in frame:

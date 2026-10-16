@@ -129,7 +129,7 @@ class XenseTactileReader:
             from xensesdk import Sensor
         except ModuleNotFoundError as exc:
             raise ModuleNotFoundError(
-                "Reading Xense tactile sensors requires xensesdk. Run launch_nodes.py "
+                "Reading Xense tactile sensors requires xensesdk. Run ur5_rg2/launch.py "
                 "inside an environment with the vendor Xense SDK installed."
             ) from exc
 

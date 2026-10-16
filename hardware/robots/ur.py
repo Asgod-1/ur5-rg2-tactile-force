@@ -2,7 +2,7 @@ from typing import Dict, Optional
 
 import numpy as np
 import threading
-from gello.robots.robot import Robot
+from hardware.robots.robot import Robot
 
 
 class URRobot(Robot):
@@ -30,7 +30,7 @@ class URRobot(Robot):
 
         self.r_inter = rtde_receive.RTDEReceiveInterface(robot_ip)
         if not no_gripper:
-            from gello.robots.rg2_gripper import RG2Gripper
+            from hardware.robots.rg2_gripper import RG2Gripper
 
             self.gripper = RG2Gripper(self.robot, self.command_lock)
             self.last_gripper_pose = 0.0

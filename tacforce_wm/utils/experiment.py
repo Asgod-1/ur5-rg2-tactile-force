@@ -111,4 +111,7 @@ def build_experiment_config(task: str, source: str, args: argparse.Namespace,
         cfg["data"]["root_dir"] = str(_absolute_path(cfg["data"]["root_dir"]))
         if cfg["data"].get("latent_cache_root_dir"):
             cfg["data"]["latent_cache_root_dir"] = str(_absolute_path(cfg["data"]["latent_cache_root_dir"]))
+        policy_cfg = cfg["model"]["policy"]
+        if policy_cfg.get("dino_checkpoint_path"):
+            policy_cfg["dino_checkpoint_path"] = str(_absolute_path(policy_cfg["dino_checkpoint_path"]))
     return build_canonical_config(task, cfg, overrides=overrides)

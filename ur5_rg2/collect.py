@@ -13,14 +13,14 @@ import lerobot.common.datasets.lerobot_dataset as lerobot_dataset_module
 from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
 from PIL import Image
 
-from dataset_delete_utils import confirm_and_rmtree
-from gello.zmq_core.camera_node import ZMQClientCamera
-from gello.force.robotiq_fts300 import (
+from data_tools.deletion import confirm_and_rmtree
+from hardware.zmq_core.camera_node import ZMQClientCamera
+from hardware.force.robotiq_fts300 import (
     RobotiqFTS300ModbusSerial,
     RobotiqFTS300ModbusTCP,
 )
-from gello.zmq_core.robot_node import ZMQClientRobot
-from gello.zmq_core.tactile_node import ZMQClientTactile
+from hardware.zmq_core.robot_node import ZMQClientRobot
+from hardware.zmq_core.tactile_node import ZMQClientTactile
 
 
 TACTILE_FIELD_KEYS = (
@@ -152,14 +152,14 @@ lerobot_dataset_module.aggregate_stats = aggregate_stats_with_channelwise_tactil
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Collect LeRobot/SmolVLA episodes on a real UR5 + RG2 with "
+            "Collect LeRobot episodes on a UR5 + RG2 with "
             "dual Xense tactile sensors and keyboard teleop."
         )
     )
-    parser.add_argument("--repo-id", default="ur5_rg2_real_smolvla_xense_tactile")
+    parser.add_argument("--repo-id", default="ur5_rg2_xense_insert")
     parser.add_argument(
         "--root",
-        default="./real_ur5rg2/data/ur5_rg2_real_smolvla_dataset_xense_tactile_insert",
+        default="./data/ur5_rg2_xense_insert",
     )
     parser.add_argument("--task", default="Insert the black cylinder vertically into the hole.")
     parser.add_argument("--num-episodes", type=int, default=20)
@@ -186,12 +186,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--xense-left-serial",
         default=XENSE_LEFT_SERIAL,
-        help="Compatibility/logging option; Xense devices are opened by launch_nodes.py.",
+        help="Compatibility/logging option; Xense devices are opened by ur5_rg2/launch.py.",
     )
     parser.add_argument(
         "--xense-right-serial",
         default=XENSE_RIGHT_SERIAL,
-        help="Compatibility/logging option; Xense devices are opened by launch_nodes.py.",
+        help="Compatibility/logging option; Xense devices are opened by ur5_rg2/launch.py.",
     )
     parser.add_argument("--xense-force-height", type=int, default=XENSE_FORCE_HEIGHT)
     parser.add_argument("--xense-force-width", type=int, default=XENSE_FORCE_WIDTH)
@@ -1542,7 +1542,7 @@ def main() -> None:
             timeout_ms=args.tactile_timeout_ms,
         )
         print(
-            "Using Xense tactile through ZMQ. Start launch_nodes.py with "
+            "Using Xense tactile through ZMQ. Start ur5_rg2/launch.py with "
             "--tactile-source xense and the two Xense serial numbers."
         )
 
@@ -1571,7 +1571,7 @@ def main() -> None:
         raise RuntimeError(
             "Failed to connect to or warm up the robot/camera/tactile/force sources. "
             "Start them first with:\n"
-            "  python real_ur5rg2/experiments/launch_nodes.py --robot ur "
+            "  python ur5_rg2/launch.py --robot ur "
             "--camera-width 424 --camera-height 240 --camera-fps 15 "
             "--tactile-source xense --xense-left-serial OG001783 "
             "--xense-right-serial OG001782\n"
@@ -1820,7 +1820,7 @@ def main() -> None:
                     reset_target_joints[5] -= 0.5 * np.pi
                 except RuntimeError as exc:
                     print(
-                        "Reset IK failed. Restart launch_nodes.py so the robot "
+                        "Reset IK failed. Restart ur5_rg2/launch.py so the robot "
                         f"server exposes inverse_kinematics. Error: {exc}"
                     )
                     continue
@@ -1951,7 +1951,7 @@ def main() -> None:
                     print(
                         "Tactile frame skipped: "
                         f"{'+'.join(invalid_sides)} tactile source returned valid=False. "
-                        "Check launch_nodes.py --tactile-source xense, Xense ZMQ ports, "
+                        "Check ur5_rg2/launch.py --tactile-source xense, Xense ZMQ ports, "
                         "USB permissions, and both Xense serial numbers before recording."
                     )
                     last_tactile_invalid_print = now

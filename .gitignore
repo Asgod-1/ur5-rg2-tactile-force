@@ -12,8 +12,8 @@ runs/
 *.safetensors
 
 # Required DINOv2 weights stay in version control
-!/real_ur5rg2/tacforce_wm/DINOv2/model.safetensors
-!/real_ur5rg2/tacforce_wm/DINOv2/pytorch_model.bin
+!/tacforce_wm/DINOv2/model.safetensors
+!/tacforce_wm/DINOv2/pytorch_model.bin
 
 # Generated feature caches and logs
 *.zarr/

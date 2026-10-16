@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 import numpy as np
 import zmq
 
-from gello.cameras.camera import CameraDriver
+from hardware.cameras.camera import CameraDriver
 
 DEFAULT_CAMERA_PORT = 5000
 DEFAULT_CLIENT_TIMEOUT_MS = 20000
@@ -45,7 +45,7 @@ class ZMQClientCamera(CameraDriver):
         except zmq.Again as exc:
             raise RuntimeError(
                 f"ZMQ timeout talking to camera server at {self._addr}. "
-                "Make sure real_ur5rg2/experiments/launch_nodes.py is running, "
+                "Make sure ur5_rg2/launch.py is running, "
                 "the camera serial number is correct, and RealSense can deliver frames "
                 f"and responding within {self._timeout_ms} ms."
             ) from exc

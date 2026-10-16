@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 import numpy as np
 from PIL import Image
 
-from gello.cameras.camera import CameraDriver
+from hardware.cameras.camera import CameraDriver
 
 
 class LeRobotRealSenseCamera(CameraDriver):

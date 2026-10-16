@@ -6,12 +6,12 @@ from typing import Literal
 
 import tyro
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from gello.robots.robot import PrintRobot
-from gello.tactile.xense import (
+from hardware.robots.robot import PrintRobot
+from hardware.tactile.xense import (
     AsyncXenseTactileReader,
     XENSE_DEFAULT_FORCE_HEIGHT,
     XENSE_DEFAULT_FORCE_WIDTH,
@@ -19,9 +19,9 @@ from gello.tactile.xense import (
     XENSE_DEFAULT_RIGHT_SERIAL,
     XenseTactileReader,
 )
-from gello.zmq_core.camera_node import ZMQServerCamera
-from gello.zmq_core.robot_node import ZMQServerRobot
-from gello.zmq_core.tactile_node import ZMQServerTactile
+from hardware.zmq_core.camera_node import ZMQServerCamera
+from hardware.zmq_core.robot_node import ZMQServerRobot
+from hardware.zmq_core.tactile_node import ZMQServerTactile
 
 
 @dataclass
@@ -44,7 +44,7 @@ class Args:
     camera_height: int = 480
     camera_fps: int = 15
     enable_depth: bool = False
-    camera_backend: str = "lerobot"
+    camera_backend: Literal["lerobot", "realsense"] = "lerobot"
     enable_tactile: bool = True
     tactile_source: Literal["xense"] = "xense"
     left_tactile_port: int = 5100
@@ -61,7 +61,7 @@ class Args:
 
 def make_robot(args: Args):
     if args.robot == "ur":
-        from gello.robots.ur import URRobot
+        from hardware.robots.ur import URRobot
 
         return URRobot(robot_ip=args.robot_ip, no_gripper=False)
     if args.robot in ("none", "print"):
@@ -78,7 +78,7 @@ def launch_robot_server(args: Args) -> None:
 
     def make_camera(device_id: str, flip: bool):
         if args.camera_backend == "lerobot":
-            from gello.cameras.lerobot_realsense_camera import LeRobotRealSenseCamera
+            from hardware.cameras.lerobot_realsense_camera import LeRobotRealSenseCamera
 
             return LeRobotRealSenseCamera(
                 device_id=device_id,
@@ -87,8 +87,8 @@ def launch_robot_server(args: Args) -> None:
                 height=args.camera_height,
                 fps=args.camera_fps,
             )
-        if args.camera_backend == "gello":
-            from gello.cameras.realsense_camera import RealSenseCamera
+        if args.camera_backend == "realsense":
+            from hardware.cameras.realsense_camera import RealSenseCamera
 
             return RealSenseCamera(
                 device_id=device_id,
@@ -98,7 +98,7 @@ def launch_robot_server(args: Args) -> None:
                 fps=args.camera_fps,
                 enable_depth=args.enable_depth,
             )
-        raise ValueError("camera_backend must be 'lerobot' or 'gello'")
+        raise ValueError("camera_backend must be 'lerobot' or 'realsense'")
 
     if args.enable_camera and args.enable_wrist_camera:
         wrist_camera = make_camera(
