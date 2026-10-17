@@ -80,6 +80,9 @@ class ZMQServerRobot:
             except zmq.Again:
                 # Timeout occurred - don't spam the console
                 pass
+            except (RuntimeError, ValueError) as exc:
+                # A rejected command must reply and leave the REP loop usable.
+                self._socket.send(pickle.dumps({"error": str(exc)}))
 
     def stop(self) -> None:
         """Signal the server to stop serving."""
@@ -147,7 +150,7 @@ class ZMQClientRobot(Robot):
         }
         return self._request(request)
 
-    def get_observations(self) -> Dict[str, np.ndarray]:
+    def get_observations(self) -> Dict[str, Any]:
         """Get the current observations of the leader robot.
 
         Returns:

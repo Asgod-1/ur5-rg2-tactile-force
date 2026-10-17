@@ -42,7 +42,7 @@ class Args:
     base_camera_flip: bool = False
     camera_width: int = 640
     camera_height: int = 480
-    camera_fps: int = 15
+    camera_fps: int = 30
     enable_depth: bool = False
     camera_backend: Literal["lerobot", "realsense"] = "lerobot"
     enable_tactile: bool = True
@@ -57,6 +57,7 @@ class Args:
     xense_force_width: int = XENSE_DEFAULT_FORCE_WIDTH
     xense_poll_interval_s: float = 0.0
     xense_warmup_timeout_s: float = 2.0
+    xense_max_age_s: float = 0.15
 
 
 def make_robot(args: Args):
@@ -71,6 +72,15 @@ def make_robot(args: Args):
 
 def launch_robot_server(args: Args) -> None:
     robot = make_robot(args)
+    try:
+        _launch_servers(args, robot)
+    finally:
+        close = getattr(robot, "close", None)
+        if close is not None:
+            close()
+
+
+def _launch_servers(args: Args, robot) -> None:
     robot_server = ZMQServerRobot(robot, port=args.robot_port, host=args.hostname)
     print(f"Starting robot server on port {args.robot_port}")
 
@@ -145,6 +155,7 @@ def launch_robot_server(args: Args) -> None:
             force_width=args.xense_force_width,
             poll_interval_s=args.xense_poll_interval_s,
             name=name,
+            max_age_s=args.xense_max_age_s,
         )
         if not async_reader.wait_for_frame(args.xense_warmup_timeout_s):
             print(
@@ -192,8 +203,11 @@ def launch_robot_server(args: Args) -> None:
 
     for thread in threads:
         thread.start()
-    for thread in threads:
-        thread.join()
+    try:
+        for thread in threads:
+            thread.join()
+    finally:
+        robot_server.stop()
 
 
 def main(args: Args) -> None:
